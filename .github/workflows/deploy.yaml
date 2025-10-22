@@ -19,18 +19,39 @@ jobs:
       - name: Publish .NET
         run: dotnet publish SharpFarm.csproj -c Release -o release
 
-      - name: Copy Roslyn DLLs
+      - name: Build and copy Roslyn DLLs + loader.js
         run: |
           mkdir -p release/wwwroot/roslyn
+          
+          # Temp-Projekt für Roslyn
           dotnet new console -n TempRoslyn -o temp_roslyn
           cd temp_roslyn
           dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
           dotnet build -c Release
-          # automatische Ermittlung des Ausgabeordners
+          
+          # DLLs kopieren nach wwwroot/roslyn
           FRAMEWORK=$(ls bin/Release)
           cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/
+
+          # loader.js generieren
+          cat <<'EOF' > ../release/wwwroot/roslyn/loader.js
+window.CSharpWasm = {
+    runScript: async function(code, worldRef) {
+        if (!window.csharpWasmReady) {
+            await loadCSharpWasm();
+            window.csharpWasmReady = true;
+        }
+        await CSharpWasm.eval(code, { world: worldRef });
+    }
+};
+
+async function loadCSharpWasm() {
+    // Hier die CSharpWasm Bootstrap-Dateien laden, z.B. von /SharpFarm/roslyn/
+}
+EOF
+
           cd ..
           rm -rf temp_roslyn
 
