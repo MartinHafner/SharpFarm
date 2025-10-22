@@ -1,37 +1,42 @@
 name: Deploy Blazor WebAssembly to GitHub Pages
-
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: '8.0.x'
 
-      - name: Publish Blazor app
-        run: dotnet publish SharpFarm.csproj -c Release -o release
+      - name: Restore packages
+        run: dotnet restore
 
-      - name: Fix base href for GitHub Pages
+      - name: Publish .NET
+        run: dotnet publish -c Release -o release
+
+      - name: Copy Roslyn DLLs
         run: |
-          sed -i 's|<base href="/"|<base href="/SharpFarm/"|g' release/wwwroot/index.html
+          mkdir -p release/wwwroot/roslyn
+          dotnet new console -n TempRoslyn -o temp_roslyn
+          cd temp_roslyn
+          dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
+          dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
+          dotnet restore
+          cp bin/Debug/net8.0/*.dll ../release/wwwroot/roslyn/
+          cd ..
+          rm -rf temp_roslyn
 
-      - name: Deploy to GitHub Pages
+      - name: Change base-href
+        run: |
+          sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
+
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: release/wwwroot
-          force_orphan: true     # always create a fresh gh-pages branch
-          user_name: github-actions
-          user_email: github-actions@github.com
