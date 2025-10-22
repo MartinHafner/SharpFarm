@@ -24,7 +24,7 @@ public class GameWorld
                 Grid[x, y] = new Cell();
     }
 
-    public void SpawnDrone(int x, int y) => Drones.Add(new Drone { X = x, Y = y });
+    public void SpawnDrone(int x, int y) => Drones.Add(new Drone( x, y) );
 
     public bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
 }
