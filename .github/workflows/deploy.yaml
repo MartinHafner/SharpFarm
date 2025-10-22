@@ -22,7 +22,7 @@ jobs:
       - name: Build and copy Roslyn DLLs + loader.js
         run: |
           mkdir -p release/wwwroot/roslyn
-          
+      
           # Temp-Projekt für Roslyn
           dotnet new console -n TempRoslyn -o temp_roslyn
           cd temp_roslyn
@@ -30,30 +30,17 @@ jobs:
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
           dotnet build -c Release
-          
+      
           # DLLs kopieren nach wwwroot/roslyn
           FRAMEWORK=$(ls bin/Release)
           cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/
-
-          # loader.js generieren
-          cat <<'EOF' > ../release/wwwroot/roslyn/loader.js
-window.CSharpWasm = {
-    runScript: async function(code, worldRef) {
-        if (!window.csharpWasmReady) {
-            await loadCSharpWasm();
-            window.csharpWasmReady = true;
-        }
-        await CSharpWasm.eval(code, { world: worldRef });
-    }
-};
-
-async function loadCSharpWasm() {
-    // Hier die CSharpWasm Bootstrap-Dateien laden, z.B. von /SharpFarm/roslyn/
-}
-EOF
-
+      
+          # loader.js in einer Zeile erzeugen
+          echo "window.CSharpWasm={runScript:async function(code,worldRef){if(!window.csharpWasmReady){window.csharpWasmReady=true;}return CSharpWasm.eval(code,{world:worldRef});}};async function loadCSharpWasm(){}" > ../release/wwwroot/roslyn/loader.js
+      
           cd ..
           rm -rf temp_roslyn
+
 
       - name: Change base-href
         run: |
