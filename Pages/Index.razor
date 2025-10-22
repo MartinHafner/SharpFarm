@@ -1,4 +1,5 @@
 @page "/"
+@inject IJSRuntime JS
 
 <h3>SharpFarm 🌾</h3>
 
@@ -38,15 +39,12 @@ world.Drones[0].Plant(world);
 ";
     string Log = "";
 
-    // Normale Instanz von GameWorld, kein static
     GameWorld World = new();
-
-    // ScriptRunner bekommt die Instanz übergeben
     ScriptRunner Runner;
 
     protected override void OnInitialized()
     {
-        Runner = new ScriptRunner(World);
+        Runner = new ScriptRunner(World, JS);
     }
 
     async Task RunCode()
