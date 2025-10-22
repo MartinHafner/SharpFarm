@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SharpFarm;
-using SharpFarm.Shared; // <-- hinzufügen für NavigationHelper
+using SharpFarm.Shared;
+using Microsoft.AspNetCore.Components;         // NavigationManager
+using Microsoft.Extensions.DependencyInjection; // GetRequiredService<T>()
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -10,7 +12,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var host = builder.Build();
 
-// NavigationHelper initialisieren, damit BaseUri später im ScriptRunner funktioniert
-NavigationHelper.Init(host.Services.GetRequiredService<NavigationManager>());
+// NavigationHelper initialisieren
+var nav = host.Services.GetRequiredService<NavigationManager>();
+NavigationHelper.Init(nav);
 
 await host.RunAsync();
