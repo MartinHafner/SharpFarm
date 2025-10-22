@@ -1,25 +1,37 @@
 name: Deploy Blazor WebAssembly to GitHub Pages
+
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
-      - name: Publish .NET
-        run: dotnet publish -c Release -o release
-      - name: Change base-href
+          dotnet-version: 8.0.x
+
+      - name: Publish Blazor app
+        run: dotnet publish SharpFarm/SharpFarm.csproj -c Release -o release
+
+      - name: Fix base href for GitHub Pages
         run: |
-          sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
+          sed -i 's|<base href="/"|<base href="/SharpFarm/"|g' release/wwwroot/index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: release/wwwroot
-          force_orphan: true   # <- adds this line
-
+          force_orphan: true     # always create a fresh gh-pages branch
+          user_name: github-actions
+          user_email: github-actions@github.com
