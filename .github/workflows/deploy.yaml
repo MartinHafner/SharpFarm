@@ -27,7 +27,8 @@ jobs:
           dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
-          cp bin/Debug/net8.0/*.dll ../release/wwwroot/roslyn/
+          dotnet build -c Release
+          cp bin/Release/net8.0/*.dll ../release/wwwroot/roslyn/
           cd ..
           rm -rf temp_roslyn
 
