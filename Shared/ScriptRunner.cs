@@ -14,6 +14,7 @@ public class ScriptGlobals
 
 public class ScriptRunner {
     public async Task<string> RunAsync(string code, GameWorld world) {
+        var codeWithLog = "using System;\n" + code + "\nConsole.WriteLine(\"Script ran\");";
         var options = ScriptOptions.Default
             .AddReferences(typeof(GameWorld).Assembly)
             .AddImports("System", "System.Collections.Generic", "SharpFarm.Shared");
