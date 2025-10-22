@@ -26,8 +26,7 @@ public class ScriptRunner
         _initialized = true;
         _references = new List<MetadataReference>();
 
-        // Diese DLLs kopiert deine GitHub Action in wwwroot/roslyn/
-        string[] roslynDlls = new[]
+        string[] dlls =
         {
             "Microsoft.CodeAnalysis.dll",
             "Microsoft.CodeAnalysis.CSharp.dll",
@@ -36,13 +35,15 @@ public class ScriptRunner
 
         var http = new HttpClient();
 
-        foreach (var dll in roslynDlls)
+        foreach (var dll in dlls)
         {
             try
             {
                 var url = $"/roslyn/{dll}";
+                Console.WriteLine($"[Roslyn] Lade {url}...");
                 var bytes = await http.GetByteArrayAsync(url);
-                _references.Add(MetadataReference.CreateFromStream(new MemoryStream(bytes)));
+                var stream = new MemoryStream(bytes);
+                _references.Add(MetadataReference.CreateFromStream(stream));
             }
             catch (Exception ex)
             {
@@ -55,8 +56,12 @@ public class ScriptRunner
     {
         await EnsureReferencesLoadedAsync();
 
+        if (_references == null || _references.Count == 0)
+            return "Keine Roslyn-DLLs geladen!";
+
+        // Kein AddReferences(typeof(GameWorld).Assembly) mehr!
         var options = ScriptOptions.Default
-            .AddReferences(_references!)
+            .AddReferences(_references)
             .AddImports("System", "System.Collections.Generic", "SharpFarm.Shared");
 
         try
@@ -67,7 +72,7 @@ public class ScriptRunner
         }
         catch (Exception ex)
         {
-            return ex.ToString();
+            return $"Script error: {ex.Message}";
         }
     }
 
