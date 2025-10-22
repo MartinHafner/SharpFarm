@@ -16,7 +16,7 @@
             <div class="row">
                 @for (int x = 0; x < World.Width; x++)
                 {
-                    var cell = World.Grid[x, y];
+                    var cell = World.Grid[x][y];
                     var droneHere = World.Drones.FirstOrDefault(d => d.X == x && d.Y == y);
                     string cls = cell.Type switch
                     {
