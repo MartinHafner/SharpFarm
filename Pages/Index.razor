@@ -17,7 +17,8 @@
                 {
                     var cell = World.Grid[x, y];
                     var droneHere = World.Drones.FirstOrDefault(d => d.X == x && d.Y == y);
-                    string cls = cell.Type switch {
+                    string cls = cell.Type switch
+                    {
                         CellType.Rock => "rock",
                         CellType.Water => "water",
                         _ => cell.IsPlanted ? "planted" : "empty"
@@ -36,11 +37,21 @@ world.Drones[0].Move(""right"", world);
 world.Drones[0].Plant(world);
 ";
     string Log = "";
-    GameWorld World = new();
-    ScriptRunner Runner = new();
 
-    async Task RunCode() {
-        Log = await Runner.RunAsync(UserCode, World);
+    // Normale Instanz von GameWorld, kein static
+    GameWorld World = new();
+
+    // ScriptRunner bekommt die Instanz übergeben
+    ScriptRunner Runner;
+
+    protected override void OnInitialized()
+    {
+        Runner = new ScriptRunner(World);
+    }
+
+    async Task RunCode()
+    {
+        Log = await Runner.RunAsync(UserCode);
         StateHasChanged();
     }
 }
