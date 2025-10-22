@@ -28,7 +28,9 @@ jobs:
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
           dotnet build -c Release
-          cp bin/Release/net8.0/*.dll ../release/wwwroot/roslyn/
+          # automatische Ermittlung des Ausgabeordners
+          FRAMEWORK=$(ls bin/Release)
+          cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/
           cd ..
           rm -rf temp_roslyn
 
