@@ -11,7 +11,7 @@ public class Cell {
 
 public class GameWorld
 {
-    public static GameWorld Instance { get; } = new GameWorld();
+    public GameWorld Instance { get; } = new GameWorld();
 
     public int Width { get; } = 10;
     public int Height { get; } = 10;
