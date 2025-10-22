@@ -16,8 +16,10 @@ jobs:
       - name: Change base-href
         run: |
           sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: release/wwwroot
+          force_orphan: true   # <- adds this line
+
