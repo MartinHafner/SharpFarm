@@ -7,14 +7,19 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace SharpFarm.Shared;
 
+public class ScriptGlobals
+{
+    public GameWorld world { get; set; }
+}
+
 public class ScriptRunner {
     public async Task<string> RunAsync(string code, GameWorld world) {
         var options = ScriptOptions.Default
             .AddReferences(typeof(GameWorld).Assembly)
             .AddImports("System", "System.Collections.Generic", "SharpFarm.Shared");
-
+        var globals = new ScriptGlobals { world = world };
         try {
-            await CSharpScript.EvaluateAsync(code, options, globals: new { world });
+            await CSharpScript.EvaluateAsync(code, options, globals: globals);
             return "OK";
         } catch (Exception ex) {
             return ex.Message;
