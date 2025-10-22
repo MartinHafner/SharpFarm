@@ -25,22 +25,23 @@ public class ScriptRunner
         if (_initialized) return;
         _initialized = true;
         _references = new List<MetadataReference>();
-    
+
         string[] dlls =
         {
             "Microsoft.CodeAnalysis.dll",
             "Microsoft.CodeAnalysis.CSharp.dll",
             "Microsoft.CodeAnalysis.Scripting.dll"
         };
-    
-        var http = new HttpClient { BaseAddress = new Uri(NavigationHelper.BaseUri) };
-    
+
+        // GitHub Pages BaseAddress
+        var http = new HttpClient { BaseAddress = new Uri("https://martinhafner.github.io/SharpFarm/") };
+
         foreach (var dll in dlls)
         {
             try
             {
-                var url = $"roslyn/{dll}";
-                Console.WriteLine($"[Roslyn] Lade {NavigationHelper.BaseUri}{url}...");
+                var url = $"roslyn/{dll}"; // relativ
+                Console.WriteLine($"[Roslyn] Lade {http.BaseAddress}{url}...");
                 var bytes = await http.GetByteArrayAsync(url);
                 _references.Add(MetadataReference.CreateFromStream(new MemoryStream(bytes)));
             }
@@ -49,14 +50,6 @@ public class ScriptRunner
                 Console.WriteLine($"Fehler beim Laden von {dll}: {ex.Message}");
             }
         }
-    }
-
-    // Erkennt automatisch den richtigen Pfad
-    private static string GetBasePath()
-    {
-        var uri = new Uri(NavigationHelper.BaseUri);
-        // Wenn du unter /SharpFarm/ läufst → gib /SharpFarm/ zurück
-        return uri.AbsolutePath.Contains("/SharpFarm") ? "/SharpFarm/" : "/";
     }
 
     public async Task<string> RunAsync(string code)
