@@ -11,8 +11,6 @@ public class Cell {
 
 public class GameWorld
 {
-    public GameWorld Instance { get; set;} = new GameWorld();
-
     public int Width { get; } = 10;
     public int Height { get; } = 10;
     public Cell[,] Grid { get; }
