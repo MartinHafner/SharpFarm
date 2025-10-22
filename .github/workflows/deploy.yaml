@@ -1,16 +1,12 @@
 name: Deploy Blazor WebAssembly to GitHub Pages
-
 on:
   push:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -23,18 +19,14 @@ jobs:
       - name: Publish .NET
         run: dotnet publish -c Release -o release
 
-      - name: Prepare Roslyn DLLs
+      - name: Copy Roslyn DLLs
         run: |
           mkdir -p release/wwwroot/roslyn
-          
-          # Install Microsoft.CodeAnalysis.CSharp and Scripting via dotnet tool to a temp project
           dotnet new console -n TempRoslyn -o temp_roslyn
           cd temp_roslyn
           dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
-
-          # Copy the DLLs to wwwroot/roslyn
           cp bin/Debug/net8.0/*.dll ../release/wwwroot/roslyn/
           cd ..
           rm -rf temp_roslyn
@@ -43,7 +35,7 @@ jobs:
         run: |
           sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
