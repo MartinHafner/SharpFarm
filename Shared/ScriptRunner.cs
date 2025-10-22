@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -14,24 +15,30 @@ public class ScriptRunner
         _js = js;
     }
 
-    /// <summary>
-    /// Führt C# Code client-side via CSharpWasm aus.
-    /// </summary>
     public async Task<string> RunAsync(string code)
     {
         try
         {
-            // Übergabe von world via JS-Interop
-            await _js.InvokeVoidAsync("CSharpWasm.runScript", code, DotNetObjectReference.Create(_world));
+            // Lädt loader.js in /roslyn/ automatisch (GitHub Pages)
+            await _js.InvokeVoidAsync("eval", @"
+                if (!window.CSharpWasm) {
+                    var s = document.createElement('script');
+                    s.src = '/SharpFarm/roslyn/loader.js';
+                    document.head.appendChild(s);
+                }
+            ");
+
+            // Führe Code über CSharpWasm aus
+            await _js.InvokeVoidAsync("CSharpWasm.runScript", code, _world);
             return "OK";
         }
         catch (JSException jsEx)
         {
-            return $"JS Error: {jsEx.Message}";
+            return $"JS error: {jsEx.Message}";
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            return $"Script Error: {ex.Message}";
+            return $"Script error: {ex.Message}";
         }
     }
 }
