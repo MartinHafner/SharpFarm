@@ -21,7 +21,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish Blazor app
-        run: dotnet publish SharpFarm/SharpFarm.csproj -c Release -o release
+        run: dotnet publish SharpFarm.csproj -c Release -o release
 
       - name: Fix base href for GitHub Pages
         run: |
