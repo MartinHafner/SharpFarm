@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpFarm", "SharpFarm.csproj", "{D923E231-F69A-D85C-38CA-5FA324F0D651}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D923E231-F69A-D85C-38CA-5FA324F0D651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D923E231-F69A-D85C-38CA-5FA324F0D651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D923E231-F69A-D85C-38CA-5FA324F0D651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D923E231-F69A-D85C-38CA-5FA324F0D651}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE052404-858E-4504-BAE2-45044D4988D6}
+	EndGlobalSection
+EndGlobal

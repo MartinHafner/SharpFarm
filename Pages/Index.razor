@@ -1,0 +1,46 @@
+@page "/"
+
+<h3>SharpFarm 🌾</h3>
+
+<div class="game-container">
+    <div class="editor">
+        <textarea @bind="UserCode"></textarea>
+        <button @onclick="RunCode">Run</button>
+        <div class="log">@Log</div>
+    </div>
+
+    <div class="grid">
+        @for (int y = 0; y < World.Height; y++)
+        {
+            <div class="row">
+                @for (int x = 0; x < World.Width; x++)
+                {
+                    var cell = World.Grid[x, y];
+                    var droneHere = World.Drones.FirstOrDefault(d => d.X == x && d.Y == y);
+                    string cls = cell.Type switch {
+                        CellType.Rock => "rock",
+                        CellType.Water => "water",
+                        _ => cell.IsPlanted ? "planted" : "empty"
+                    };
+                    if (droneHere != null) cls = "drone";
+                    <div class="cell @cls"></div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    string UserCode = @"world.SpawnDrone(2,2);
+world.Drones[0].Move(""right"", world);
+world.Drones[0].Plant(world);
+";
+    string Log = "";
+    GameWorld World = new();
+    ScriptRunner Runner = new();
+
+    async Task RunCode() {
+        Log = await Runner.RunAsync(UserCode, World);
+        StateHasChanged();
+    }
+}
