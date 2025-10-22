@@ -1,5 +1,5 @@
 @page "/"
-@inject IJSRuntime JS
+@using Microsoft.JSInterop
 
 <h3>SharpFarm 🌾</h3>
 
@@ -41,6 +41,8 @@ world.Drones[0].Plant(world);
 
     GameWorld World = new();
     ScriptRunner Runner;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     protected override void OnInitialized()
     {
