@@ -25,28 +25,24 @@ public class ScriptRunner
         if (_initialized) return;
         _initialized = true;
         _references = new List<MetadataReference>();
-
+    
         string[] dlls =
         {
             "Microsoft.CodeAnalysis.dll",
             "Microsoft.CodeAnalysis.CSharp.dll",
             "Microsoft.CodeAnalysis.Scripting.dll"
         };
-
-        var http = new HttpClient();
-
-        // Dynamischer Basis-Pfad (lokal oder GitHub Pages)
-        var basePath = GetBasePath();
-
+    
+        var http = new HttpClient { BaseAddress = new Uri(NavigationHelper.BaseUri) };
+    
         foreach (var dll in dlls)
         {
             try
             {
-                var url = $"{basePath}roslyn/{dll}";
-                Console.WriteLine($"[Roslyn] Lade {url}...");
+                var url = $"roslyn/{dll}";
+                Console.WriteLine($"[Roslyn] Lade {NavigationHelper.BaseUri}{url}...");
                 var bytes = await http.GetByteArrayAsync(url);
-                var stream = new MemoryStream(bytes);
-                _references.Add(MetadataReference.CreateFromStream(stream));
+                _references.Add(MetadataReference.CreateFromStream(new MemoryStream(bytes)));
             }
             catch (Exception ex)
             {
