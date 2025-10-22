@@ -35,11 +35,14 @@ public class ScriptRunner
 
         var http = new HttpClient();
 
+        // Dynamischer Basis-Pfad (lokal oder GitHub Pages)
+        var basePath = GetBasePath();
+
         foreach (var dll in dlls)
         {
             try
             {
-                var url = $"/roslyn/{dll}";
+                var url = $"{basePath}roslyn/{dll}";
                 Console.WriteLine($"[Roslyn] Lade {url}...");
                 var bytes = await http.GetByteArrayAsync(url);
                 var stream = new MemoryStream(bytes);
@@ -52,6 +55,14 @@ public class ScriptRunner
         }
     }
 
+    // Erkennt automatisch den richtigen Pfad
+    private static string GetBasePath()
+    {
+        var uri = new Uri(NavigationHelper.BaseUri);
+        // Wenn du unter /SharpFarm/ läufst → gib /SharpFarm/ zurück
+        return uri.AbsolutePath.Contains("/SharpFarm") ? "/SharpFarm/" : "/";
+    }
+
     public async Task<string> RunAsync(string code)
     {
         await EnsureReferencesLoadedAsync();
@@ -59,7 +70,6 @@ public class ScriptRunner
         if (_references == null || _references.Count == 0)
             return "Keine Roslyn-DLLs geladen!";
 
-        // Kein AddReferences(typeof(GameWorld).Assembly) mehr!
         var options = ScriptOptions.Default
             .AddReferences(_references)
             .AddImports("System", "System.Collections.Generic", "SharpFarm.Shared");
