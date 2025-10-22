@@ -1,5 +1,9 @@
+using System;
+using System.Threading.Tasks;       // <-- for Task
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+
 
 namespace SharpFarm.Shared;
 
