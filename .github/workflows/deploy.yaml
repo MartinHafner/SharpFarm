@@ -17,7 +17,7 @@ jobs:
         run: dotnet restore
 
       - name: Publish .NET
-        run: dotnet publish -c Release -o release
+        run: dotnet publish SharpFarm.csproj -c Release -o release
 
       - name: Copy Roslyn DLLs
         run: |
