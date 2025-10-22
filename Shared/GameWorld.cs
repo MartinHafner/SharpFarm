@@ -1,4 +1,5 @@
 namespace SharpFarm.Shared;
+using System.Collections.Generic;
 
 public enum CellType { Empty, Crop, Rock, Water }
 
@@ -17,8 +18,8 @@ public class GameWorld {
     public GameWorld() {
         Grid = new Cell[Width, Height];
         for (int x = 0; x < Width; x++)
-        for (int y = 0; y < Height; y++)
-            Grid[x, y] = new Cell();
+            for (int y = 0; y < Height; y++)
+                Grid[x, y] = new Cell();
     }
 
     public void SpawnDrone(int x, int y) => Drones.Add(new Drone(x, y));
