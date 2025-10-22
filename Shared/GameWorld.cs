@@ -1,4 +1,5 @@
 namespace SharpFarm.Shared;
+using System.Collections.Generic;
 
 public enum CellType { Empty, Crop, Rock, Water }
 
