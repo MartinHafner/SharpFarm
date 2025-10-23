@@ -1,0 +1,70 @@
+<body>
+
+<h3>SharpFarm 🌾</h3>
+<link rel="stylesheet" href="css/site.css" />
+<script src="roslyn/loader.js"></script>
+<div class="game-container">
+  <div class="editor">
+    <textarea id="codeArea">world.SpawnDrone(2,2);\nworld.Drones[0].Move("right", world);\nworld.Drones[0].Plant(world);</textarea>
+    <button onclick="runCode()">Run</button>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+  // Game state
+  const World = {
+    Width: 10,
+    Height: 10,
+    Grid: [],
+    Drones: []
+  };
+
+  for (let x = 0; x < World.Width; x++) {
+    World.Grid[x] = [];
+    for (let y = 0; y < World.Height; y++) {
+      World.Grid[x][y] = { Type: 'Empty', IsPlanted: false, IsHarvested: false };
+    }
+  }
+
+  function renderGrid() {
+    const gridDiv = document.getElementById('grid');
+    gridDiv.innerHTML = '';
+    for (let y = 0; y < World.Height; y++) {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row';
+      for (let x = 0; x < World.Width; x++) {
+        const cell = World.Grid[x][y];
+        let cls = cell.Type.toLowerCase();
+        if (cell.IsPlanted) cls = 'planted';
+        if (cell.IsHarvested) cls = 'empty';
+        if (World.Drones.find(d => d.X === x && d.Y === y)) cls = 'drone';
+        const cellDiv = document.createElement('div');
+        cellDiv.className = 'cell ' + cls;
+        rowDiv.appendChild(cellDiv);
+      }
+      gridDiv.appendChild(rowDiv);
+    }
+  }
+
+  renderGrid();
+
+  async function runCode() {
+    const code = document.getElementById('codeArea').value;
+    const log = document.getElementById('log');
+    log.innerText = '[CSharpWasm] running...';
+    try {
+      await CSharpWasm.runScript(code, World);
+      log.innerText = 'Code executed!';
+      renderGrid();
+    } catch(e) {
+      log.innerText = 'Error: ' + e;
+    }
+  }
+
+  // Optional: game tick
+  setInterval(renderGrid, 500); // 500ms
+</script>
+</body>
