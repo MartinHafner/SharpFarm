@@ -1,6 +1,8 @@
 <body>
 
 <h3>SharpFarm 🌾</h3>
+<link rel="stylesheet" href="css/site.css" />
+<script src="roslyn/loader.js"></script>
 <div class="game-container">
   <div class="editor">
     <textarea id="codeArea">world.SpawnDrone(2,2);\nworld.Drones[0].Move("right", world);\nworld.Drones[0].Plant(world);</textarea>
@@ -10,8 +12,7 @@
 
   <div class="grid" id="grid"></div>
 </div>
-<link rel="stylesheet" href="css/site.css" />
-<script src="roslyn/loader.js"></script>
+
 <script>
   // Game state
   const World = {
