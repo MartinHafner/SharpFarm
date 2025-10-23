@@ -2,6 +2,7 @@ name: Deploy Blazor WebAssembly to GitHub Pages
 on:
   push:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,37 +17,39 @@ jobs:
       - name: Restore packages
         run: dotnet restore
 
-      - name: Publish .NET
+      - name: Publish Blazor project
         run: dotnet publish SharpFarm.csproj -c Release -o release
 
       - name: Build and copy Roslyn DLLs + loader.js
         run: |
           mkdir -p release/wwwroot/roslyn
-      
-          # Temp-Projekt für Roslyn
+          
+          # Temporary project for Roslyn assemblies
           dotnet new console -n TempRoslyn -o temp_roslyn
           cd temp_roslyn
           dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
           dotnet build -c Release
-      
-          # DLLs kopieren nach wwwroot/roslyn
+
+          # Copy the actual built DLLs to /wwwroot/roslyn
           FRAMEWORK=$(ls bin/Release)
-          cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/
-      
-          # loader.js in einer Zeile erzeugen
+          cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/ || true
+          cp bin/Release/$FRAMEWORK/ref/*.dll ../release/wwwroot/roslyn/ || true
+
+          # ✅ Generate loader.js (minified one-liner)
           echo "window.CSharpWasm={runScript:async function(code,worldRef){if(!window.csharpWasmReady){window.csharpWasmReady=true;}return CSharpWasm.eval(code,{world:worldRef});}};async function loadCSharpWasm(){}" > ../release/wwwroot/roslyn/loader.js
-      
+
           cd ..
           rm -rf temp_roslyn
 
+          echo "Roslyn files in publish dir:"
+          ls -l release/wwwroot/roslyn
 
-      - name: Change base-href
-        run: |
-          sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
+      - name: Fix base href for GitHub Pages
+        run: sed -i 's|<base href="/"|<base href="/SharpFarm/"|' release/wwwroot/index.html
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
