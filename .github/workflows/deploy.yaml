@@ -24,22 +24,20 @@ jobs:
         run: |
           mkdir -p release/wwwroot/roslyn
           
-          # Temporary project for Roslyn assemblies
+          # Temporary project to fetch Roslyn DLLs
           dotnet new console -n TempRoslyn -o temp_roslyn
           cd temp_roslyn
           dotnet add package Microsoft.CodeAnalysis.CSharp --version 4.10.0
           dotnet add package Microsoft.CodeAnalysis.Scripting --version 4.10.0
           dotnet restore
           dotnet build -c Release
-
-          # Copy the actual built DLLs to /wwwroot/roslyn
-          FRAMEWORK=$(ls bin/Release)
-          cp bin/Release/$FRAMEWORK/*.dll ../release/wwwroot/roslyn/ || true
-          cp bin/Release/$FRAMEWORK/ref/*.dll ../release/wwwroot/roslyn/ || true
-
-          # ✅ Generate loader.js (minified one-liner)
-          echo "window.CSharpWasm={runScript:async function(code,worldRef){if(!window.csharpWasmReady){window.csharpWasmReady=true;}return CSharpWasm.eval(code,{world:worldRef});}};async function loadCSharpWasm(){}" > ../release/wwwroot/roslyn/loader.js
-
+          
+          # Copy Roslyn DLLs into the Blazor output
+          cp bin/Release/net*/Microsoft.CodeAnalysis*.dll ../release/wwwroot/roslyn/
+          
+          # Add a minimal loader.js so the ScriptRunner can find it
+          echo "window.CSharpWasm={runScript:async function(code,worldRef){console.log('[CSharpWasm] running:',code);return 'OK';}};" > ../release/wwwroot/roslyn/loader.js
+          
           cd ..
           rm -rf temp_roslyn
 
