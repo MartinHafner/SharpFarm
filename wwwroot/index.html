@@ -6,10 +6,22 @@
     <title>SharpFarm 🌾</title>
     <base href="/SharpFarm/" />
     <link rel="stylesheet" href="css/site.css" />
+
+    <!-- ✅ Preload Roslyn loader -->
+    <script>
+        // Ensure CSharpWasm loader is fetched before Blazor starts
+        (function() {
+            var script = document.createElement('script');
+            script.src = '/SharpFarm/roslyn/loader.js';
+            script.onload = () => console.log('✅ loader.js loaded');
+            document.head.appendChild(script);
+        })();
+    </script>
 </head>
 <body>
     <div id="app">Loading SharpFarm...</div>
 
+    <!-- ✅ Blazor must load *after* loader.js -->
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>
