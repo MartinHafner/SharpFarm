@@ -1,40 +1,44 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.JSInterop;
 
 namespace SharpFarm.Shared;
 
 public class ScriptRunner
 {
     private readonly GameWorld _world;
+    private readonly IJSRuntime _js;
 
-    public ScriptRunner(GameWorld world)
+    public ScriptRunner(GameWorld world, IJSRuntime js)
     {
         _world = world;
+        _js = js;
     }
 
     public async Task<string> RunAsync(string code)
     {
         try
         {
-            var globals = new Globals { world = _world };
-            var options = ScriptOptions.Default
-                .AddReferences(typeof(GameWorld).Assembly)
-                .AddImports("System", "SharpFarm.Shared");
+            // Lädt loader.js in /roslyn/ automatisch (GitHub Pages)
+            await _js.InvokeVoidAsync("eval", @"
+                if (!window.CSharpWasm) {
+                    var s = document.createElement('script');
+                    s.src = '/SharpFarm/roslyn/loader.js';
+                    document.head.appendChild(s);
+                }
+            ");
 
-            await CSharpScript.EvaluateAsync(code, options, globals: globals);
-
+            // Führe Code über CSharpWasm aus
+            await _js.InvokeVoidAsync("CSharpWasm.runScript", code, _world);
             return "OK";
+        }
+        catch (JSException jsEx)
+        {
+            return $"JS error: {jsEx.Message}";
         }
         catch (Exception ex)
         {
             return $"Script error: {ex.Message}";
         }
-    }
-
-    public class Globals
-    {
-        public GameWorld world { get; set; } = null!;
     }
 }
