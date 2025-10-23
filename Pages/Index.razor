@@ -1,7 +1,13 @@
 @page "/"
 @using Microsoft.JSInterop
+@using System.Threading
 
 <h3>SharpFarm 🌾</h3>
+
+<div class="controls">
+    <label>Tick Speed (ms):</label>
+    <input type="number" @bind="TickSpeed" min="100" max="2000" step="50" />
+</div>
 
 <div class="game-container">
     <div class="editor">
@@ -44,14 +50,37 @@ world.Drones[0].Plant(world);
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
+    // Tick timer
+    private Timer? _timer;
+    private int _tickSpeed = 500;
+    public int TickSpeed
+    {
+        get => _tickSpeed;
+        set
+        {
+            _tickSpeed = value;
+            // restart timer with new interval
+            _timer?.Change(0, _tickSpeed);
+        }
+    }
+
     protected override void OnInitialized()
     {
         Runner = new ScriptRunner(World, JS);
+        _timer = new Timer(_ =>
+        {
+            InvokeAsync(StateHasChanged);
+        }, null, 0, TickSpeed);
     }
 
     async Task RunCode()
     {
         Log = await Runner.RunAsync(UserCode);
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
     }
 }
